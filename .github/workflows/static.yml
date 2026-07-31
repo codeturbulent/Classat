@@ -22,18 +22,17 @@ jobs:
       - name: Checkout your repository
         uses: actions/checkout@v4
 
-      # Explicitly set the Node version here to bypass the Node 20 runner defaults
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18' # Downgraded to 18 to fix your Node 20 errors
-          cache: 'npm' # Automatically caches your node_modules to speed up builds
+          node-version: '18' 
+          # I removed the 'cache: npm' line here
 
       - name: Install dependencies
-        run: npm ci # 'npm ci' is safer and faster for automated environments than 'npm install'
+        run: npm install # Changed from 'npm ci' to 'npm install'
 
       - name: Build the project
-        run: npm run build # Runs your build script from package.json
+        run: npm run build 
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -41,11 +40,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # IMPORTANT: Change this to match your framework's output folder!
-          # React/Create React App = './build'
-          # Vite/Vue/Svelte = './dist'
-          # Next.js = './out'
-          path: './dist'
+          path: './dist' # Remember to change this to your build output folder!
+
 
   # Job 2: Deploy the built files
   deploy:
