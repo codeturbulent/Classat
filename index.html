@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Attendance Tracker - Modern Classroom Attendance</title>
+    <meta name="description" content="Quickly mark student attendance, search by roll number or name, and share structured attendance reports directly to your WhatsApp class group.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="brand-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+                </div>
+                <div>
+                    <h1>AttenSync <span class="brand-tag">WhatsApp Ready</span></h1>
+                    <p class="subtitle">Select present students & share instant attendance reports to WhatsApp</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button id="themeToggleBtn" class="btn btn-icon" title="Toggle Theme">
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <button id="manageRosterBtn" class="btn btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Manage Roster</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Counter Dashboard -->
+        <section class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-info">
+                    <span class="stat-label">Total Students</span>
+                    <span id="statTotal" class="stat-value">0</span>
+                </div>
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                </div>
+            </div>
+
+            <div class="stat-card present">
+                <div class="stat-info">
+                    <span class="stat-label">Present</span>
+                    <span id="statPresent" class="stat-value">0</span>
+                </div>
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+            </div>
+
+            <div class="stat-card absent">
+                <div class="stat-info">
+                    <span class="stat-label">Absent</span>
+                    <span id="statAbsent" class="stat-value">0</span>
+                </div>
+                <div class="stat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                </div>
+            </div>
+
+            <div class="stat-card percentage">
+                <div class="stat-info">
+                    <span class="stat-label">Attendance Rate</span>
+                    <span id="statPercent" class="stat-value">0%</span>
+                </div>
+                <div class="stat-progress-bar">
+                    <div id="statProgressBar" class="progress-fill" style="width: 0%;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Workspace Layout -->
+        <main class="main-workspace">
+            <!-- Left Column: Class Info & Student List -->
+            <section class="left-panel">
+                <!-- Session Metadata Form -->
+                <div class="card meta-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h2 class="card-title" style="margin-bottom: 0;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            Session & Class Details
+                        </h2>
+                    </div>
+                    
+                    <div class="input-group full-width" style="margin-bottom: 14px;">
+                        <label for="timetableSelect">🗓️ Quick Select from B.Tech. Sem-V (RN-08) Timetable</label>
+                        <select id="timetableSelect" style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px 14px; border-radius: var(--radius-md); font-family: inherit; font-size: 0.925rem; outline: none; width: 100%;">
+                            <option value="">-- Choose Timetable Slot (Optional) --</option>
+                            <optgroup label="Monday">
+                                <option value="mon_1030">Monday (10:30-11:30 AM) - PCC CS-501 | Dr. Vandana Pandey</option>
+                                <option value="mon_1130">Monday (11:30-12:30 PM) - PCC CS-501 | Dr. Sanjay Kumar Th</option>
+                                <option value="mon_1430">Monday (02:30-03:30 PM) - PLC CS-554 | Dr. Vandana Pandey</option>
+                                <option value="mon_1630">Monday (04:30-05:30 PM) - MC-506 | Dr. Arti Maurya</option>
+                            </optgroup>
+                            <optgroup label="Tuesday">
+                                <option value="tue_0930">Tuesday (09:30-10:30 AM) - ESC-501 | Dr. Vivek Shukla</option>
+                                <option value="tue_1030">Tuesday (10:30-11:30 AM) - PCC CS-504 | Dr. Vandana Pandey</option>
+                                <option value="tue_1130">Tuesday (11:30-12:30 PM) - PCC CS-502 / PLC CS-552 | Dr. Arti Maurya</option>
+                                <option value="tue_1230">Tuesday (12:30-01:30 PM) - PCC CS-503 (Dr. Vandana Pandey) / ELC-351 (Dr. Vivek Shukla)</option>
+                                <option value="tue_1630">Tuesday (04:30-05:30 PM) - MC-506 | Dr. Sanjay Kumar Th</option>
+                            </optgroup>
+                            <optgroup label="Wednesday">
+                                <option value="wed_0930">Wednesday (09:30-10:30 AM) - ESC-501 | Dr. Vivek Shukla</option>
+                                <option value="wed_1030">Wednesday (10:30-11:30 AM) - PCC CS-502 | Dr. Vandana Pandey</option>
+                                <option value="wed_1130">Wednesday (11:30-12:30 PM) - HSMC-505 | Dr. Vivek Shukla</option>
+                                <option value="wed_1430">Wednesday (02:30-03:30 PM) - PCC CS-503 | Dr. Sanjay Kumar Th</option>
+                                <option value="wed_1530">Wednesday (03:30-04:30 PM) - ECS-077</option>
+                                <option value="wed_1630">Wednesday (04:30-05:30 PM) - ECS-752 | Dr. Vivek Shukla</option>
+                            </optgroup>
+                            <optgroup label="Thursday">
+                                <option value="thu_0930">Thursday (09:30-10:30 AM) - PCC CS-503 | Dr. Sanjay Kumar Th</option>
+                                <option value="thu_1030">Thursday (10:30-11:30 AM) - PCC CS-502 | Dr. Vandana Pandey</option>
+                                <option value="thu_1130">Thursday (11:30-12:30 PM) - HSMC-505 | Dr. Arti Maurya</option>
+                                <option value="thu_1230">Thursday (12:30-01:30 PM) - PLC CS-551 | Dr. Vandana Pandey</option>
+                                <option value="thu_1430">Thursday (02:30-03:30 PM) - PLC CS-554 | Dr. Vandana Pandey</option>
+                                <option value="thu_1530">Thursday (03:30-04:30 PM) - ESC-501 | Dr. Vivek Shukla</option>
+                            </optgroup>
+                            <optgroup label="Friday">
+                                <option value="fri_1030">Friday (10:30-11:30 AM) - PCC CS-504 | Dr. Vandana Pandey</option>
+                                <option value="fri_1130">Friday (11:30-12:30 PM) - HSMC-505 | Dr. Arti Maurya</option>
+                                <option value="fri_1230">Friday (12:30-01:30 PM) - PLC CS-552 | Dr. Vivek Shukla</option>
+                                <option value="fri_1430">Friday (02:30-03:30 PM) - Hobby Club Classes</option>
+                                <option value="fri_1530">Friday (03:30-04:30 PM) - Hobby Club Classes</option>
+                                <option value="fri_1630">Friday (04:30-05:30 PM) - ECS-752</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="meta-form-grid">
+                        <div class="input-group">
+                            <label for="classNameInput">Class / Subject Name</label>
+                            <input type="text" id="classNameInput" placeholder="e.g. CS 3rd Year - Web Development" value="B.Tech Sem-V (RN-08)">
+                        </div>
+                        <div class="input-group">
+                            <label for="attendanceDate">Date</label>
+                            <input type="date" id="attendanceDate">
+                        </div>
+                        <div class="input-group">
+                            <label for="teacherNameInput">Faculty / Teacher</label>
+                            <input type="text" id="teacherNameInput" placeholder="e.g. Dr. Vandana Pandey">
+                        </div>
+                        <div class="input-group">
+                            <label for="sessionTimingInput">Period / Time</label>
+                            <input type="text" id="sessionTimingInput" placeholder="e.g. 09:30 AM - 10:30 AM">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="card roster-card">
+                    <div class="roster-header">
+                        <div class="search-box">
+                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" id="searchInput" placeholder="Search by Student Name or Roll Number...">
+                            <button id="clearSearchBtn" class="clear-search-btn" title="Clear Search" style="display: none;">&times;</button>
+                        </div>
+
+                        <div class="header-controls-row" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <div class="filter-tabs">
+                                <button class="filter-tab active" data-filter="all">All</button>
+                                <button class="filter-tab" data-filter="present">Present</button>
+                                <button class="filter-tab" data-filter="absent">Absent</button>
+                            </div>
+
+                            <select id="sortSelect" title="Sort Student List" class="sort-select">
+                                <option value="roll-asc">Roll No (1 → 9)</option>
+                                <option value="roll-desc">Roll No (9 → 1)</option>
+                                <option value="name-asc">Name (A → Z)</option>
+                                <option value="name-desc">Name (Z → A)</option>
+                                <option value="status-absent">Status (Absent First)</option>
+                                <option value="status-present">Status (Present First)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Quick Batch Action Buttons -->
+                    <div class="action-bar">
+                        <div class="action-buttons">
+                            <button id="selectAllBtn" class="btn btn-sm btn-outline">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                Select All Present
+                            </button>
+                            <button id="deselectAllBtn" class="btn btn-sm btn-outline">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+                                Clear All
+                            </button>
+                            <button id="invertSelectionBtn" class="btn btn-sm btn-outline">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4M7 4L3 8M7 4L11 8M17 8V20M17 20L21 16M17 20L13 16"/></svg>
+                                Invert
+                            </button>
+                        </div>
+                        <span id="matchingCountLabel" class="matching-label">Showing all students</span>
+                    </div>
+
+                    <!-- Student List Container -->
+                    <div id="studentList" class="student-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Column: WhatsApp Report Generator & Preview -->
+            <section class="right-panel">
+                <div class="card preview-card">
+                    <div class="card-header-with-badge">
+                        <h2 class="card-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            WhatsApp Message Preview
+                        </h2>
+                        <span class="badge whatsapp-badge">Live Format</span>
+                    </div>
+
+                    <!-- Message Output Customization Options -->
+                    <div class="format-options">
+                        <label class="toggle-option">
+                            <input type="checkbox" id="optIncludePresent" checked>
+                            <span>Include Present List</span>
+                        </label>
+                        <label class="toggle-option">
+                            <input type="checkbox" id="optIncludeAbsent" checked>
+                            <span>Include Absent List</span>
+                        </label>
+                        <label class="toggle-option">
+                            <input type="checkbox" id="optCompactFormat">
+                            <span>Compact Mode (Roll numbers only)</span>
+                        </label>
+                    </div>
+
+                    <!-- Textarea Message Output -->
+                    <div class="whatsapp-preview-box">
+                        <textarea id="whatsappMessageText" readonly rows="13" placeholder="Generated attendance report will appear here..."></textarea>
+                    </div>
+
+                    <!-- WhatsApp Share Actions -->
+                    <div class="whatsapp-actions">
+                        <button id="sendWhatsappBtn" class="btn btn-whatsapp btn-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                            <span>Share to WhatsApp Group</span>
+                        </button>
+                        <button id="copyMessageBtn" class="btn btn-secondary btn-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            <span>Copy Message</span>
+                        </button>
+                    </div>
+
+                    <!-- Direct Number / Custom WhatsApp Link -->
+                    <div class="whatsapp-options-bar">
+                        <div class="input-group full-width">
+                            <label for="waPhoneInput">Optional: Send to Specific Group/Number (with country code)</label>
+                            <input type="text" id="waPhoneInput" placeholder="e.g. 1234567890 (Leave empty to choose any group/chat)">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Mobile Sticky Action Bar -->
+    <div class="mobile-sticky-bar">
+        <button id="mobileSendWhatsappBtn" class="btn btn-whatsapp">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            <span>Share to WhatsApp</span>
+        </button>
+        <button id="mobileCopyMessageBtn" class="btn btn-secondary btn-icon" title="Copy Message">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+    </div>
+
+    <!-- Modal: Roster Management -->
+    <div id="rosterModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Manage Class Roster
+                </h2>
+                <button id="closeModalBtn" class="modal-close-btn">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Add Single Student Form -->
+                <div class="single-add-form">
+                    <h3>Add Single Student</h3>
+                    <div class="form-row">
+                        <input type="text" id="newRollInput" placeholder="Roll No (e.g. 101)" class="form-input">
+                        <input type="text" id="newNameInput" placeholder="Student Full Name" class="form-input">
+                        <button id="addStudentBtn" class="btn btn-primary">Add Student</button>
+                    </div>
+                </div>
+
+                <div class="divider"><span>OR BULK IMPORT</span></div>
+
+                <!-- Bulk Import Form -->
+                <div class="bulk-import-form">
+                    <h3>Bulk Import Students</h3>
+                    <p class="help-text">Enter line by line: <code>RollNo, Student Name</code> or <code>1. John Doe</code></p>
+                    <textarea id="bulkImportTextarea" rows="6" placeholder="101, Alex Johnson&#10;102, Beatrice Smith&#10;103, Charlie Brown&#10;104, David Miller"></textarea>
+                    <div class="bulk-actions">
+                        <button id="importBulkBtn" class="btn btn-secondary">Import Roster</button>
+                        <button id="resetDefaultRosterBtn" class="btn btn-outline-danger">Reset to Sample Roster</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
